@@ -50,8 +50,6 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
-    surfaceScalarField int_pty = fvc::interpolate(pty); // Calculate face values of pty (only need to do this once)
-
     while (runTime.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
@@ -62,7 +60,8 @@ int main(int argc, char *argv[])
         fvVectorMatrix UEqn
         (
             (1.0/pty)*fvm::ddt(U)                   // Local acceleration term
-          + (1.0/pty)*fvm::div(phi/int_pty, U)      //+ (1.0/sqr(pty))*fvm::div(phi, U) // Convective acceleration term
+          + (1.0/sqr(pty))*fvm::div(phi, U)         // Convective acceleration term
+          //+ (1.0/pty)*fvm::div(phi/fvc::interpolate(pty), U)       // Convective acceleration term
           - (1.0/pty)*fvm::laplacian(nu, U)         // Viscous term (with Brinkman modification)
           + fvm::SuSp(nu/K_, U)                     // Darcy term
           + fvm::SuSp((cf/sqrt(K_))*mag(U), U)      // Forchheimer term
