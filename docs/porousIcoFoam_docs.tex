@@ -1,0 +1,356 @@
+\documentclass[a4paper,11pt]{report}
+\usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{float}
+\usepackage[section]{placeins}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{esint}
+\usepackage{tcolorbox}
+\usepackage{tabularx}
+\graphicspath{ {./images/} }
+\begin{document}
+
+\title{porousIcoFoam - Documentation}
+\author{Callum Bruce}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+Documentation for porousIcoFoam, a transient, incompressible OpenFOAM solver for the laminar flow of Newtonian fluids including regions of clear fluid and porous media including:
+\begin{itemize}
+    \item Details of the Darcy Brinkman Forchheimer governing equations.
+    \item Details of the solution algorithm and finite volume discretization relevant to the implementation of porousIcoFoam.
+    \item Calculation of the forces and moments acting on porous bodies.
+\end{itemize}  
+\end{abstract}
+
+\chapter{The Darcy Brinkman Forchheimer governing equations}
+The unsteady, incompressible Darcy Brinkman Forchheimer (DBF) continuity and momentum equations are given by:
+\begin{equation}
+    \nabla\cdot\mathbf{u} = 0
+    \label{eq:dbf_continuity}
+\end{equation}
+\begin{equation}
+    \frac{1}{\phi}\frac{\partial\mathbf{u}}{\partial{t}} + \frac{1}{\phi^{2}}(\mathbf{u}\cdot\nabla\mathbf{u}) = -\nabla{p^*} + \frac{\nu}{\phi}\nabla^{2}\mathbf{u} - \frac{\nu}{K}\mathbf{u} - \frac{c_{F}}{\sqrt{K}}\lvert\mathbf{u}\rvert\mathbf{u}
+    \label{eq:dbf_momentum}
+\end{equation}
+where $\phi=V_f/V$ is porosity, a dimensionless scalar field defined as the ratio of fluid volume, $V_f$ to total volume, $V$ inside a finite control volume. $p^*$ is kinematic pressure $[m^2s^{-2}]$. $K$ is permeability $[m^2]$. The value of the coefficient $K$ depends on the geometry of the medium. For the special case where the porous media is isotropic, $K$ is a scalar field; for the more general case of anisotropic porous media, $K$ is a tensor field. $c_F$ is a dimensionless form-drag constant.
+\vspace{5mm}\\
+Equation \ref{eq:dbf_momentum} is a macroscopic momentum equation. It should be noted $\mathbf{u} = \phi\mathbf{u}_f$ is the ``Darcy velocity'' and similarly $p^* = \phi{p^*_f}$, where $\mathbf{u}_f$ and $p^*_f$ are the volumetric average (macroscopic)\footnote{The volumetric average (macroscopic) fluid velocity and pressure are those averaged over $V$ in contrast to the true local pore scale fluid velocity and pressure inside the porous media which the macroscopic momentum equation does not resolve.} fluid velocity and kinematic pressure respectively. Hsu and Cheng \cite{Hsu1990} derive equation \ref{eq:dbf_momentum} by volume averaging of the microscopic Navier Stokes conservation equations (\ref{eq:continuity}, \ref{eq:ns_momentum}) over a representative volume.
+
+\chapter{Solving the system of equations in OpenFOAM}
+\section{The system of equations}
+Lets consider the unsteady, incompressible Navier Stokes continuity and momentum equations:
+\begin{equation}
+    \nabla\cdot\mathbf{u} = 0
+    \label{eq:continuity}
+\end{equation}
+\begin{equation}
+    \frac{\partial\mathbf{u}}{\partial{t}} + \mathbf{u}\cdot\nabla\mathbf{u} = -\nabla{p^*} + \nu\nabla^{2}\mathbf{u} + S_i
+    \label{eq:ns_momentum}
+\end{equation}
+where $S_i$ represents source terms. All other symbols take their usual meaning. Hence we have four equations and four unknowns ($u, v, w, p^*$). There is no equation for pressure. This is the system of equations solved for in OpenFOAM for the unsteady, incompressible solver icoFoam.
+\vspace{5mm}\\
+To proceed, the momentum equation (\ref{eq:ns_momentum}) is constructed in matrix form as:
+\begin{equation}
+    \mathbf{M}\mathbf{U} = -\nabla{p^*}
+    \label{eq:ns_momentum_matrixform}
+\end{equation}
+Considering the $x$ components of the momentum equation; in expanded form we have $n$ equations, one for each cell centroid:
+\begin{equation}
+    \begin{pmatrix}
+        M_{1,1} & M_{1,2} & M_{1,3} & \dots & M_{1,n}\\
+        M_{2,1} & M_{2,2} & M_{2,3} & \dots & M_{2,n}\\
+        M_{3,1} & M_{3,2} & M_{3,3} & \dots & M_{3,n}\\
+        \vdots  & \vdots  & \vdots  & \ddots & \vdots\\
+        M_{n,1} & M_{n,2} & M_{n,3} & \dots & M_{n,n}\\
+    \end{pmatrix}
+    \begin{pmatrix}
+        U_{1}\\
+        U_{2}\\
+        U_{3}\\
+        \vdots\\
+        U_{n}\\
+    \end{pmatrix} =
+    \begin{pmatrix}
+        (\partial{p^*}/\partial{x})_1\\
+        (\partial{p^*}/\partial{x})_2\\
+        (\partial{p^*}/\partial{x})_3\\
+        \vdots\\
+        (\partial{p^*}/\partial{x})_n\\
+    \end{pmatrix}
+    \label{eq:ns_momentum_matrixform_ex}
+\end{equation}
+We require to solve for the unknown vector $\mathbf{U}$. Note that $\mathbf{U}$ is a vector containing $\mathbf{u}$ at all the cell centroids. The matrix of coefficients, $\mathbf{M}$, is known and populated using the finite volume method. Terms on the diagonal of $\mathbf{M}$ pertain to contributions by the owner cell while off diagonal terms contain contributions from neighboring cells.
+\vspace{5mm}\\
+To proceed, the matrix of coefficients, $\mathbf{M}$ is separated into diagonal components, $\mathbf{A}$ and off-diagonal components, $\mathbf{H}$. Equation \ref{eq:ns_momentum_matrixform} then takes the form:
+\begin{equation}
+    \mathbf{A}\mathbf{U} - \mathbf{H} = - \nabla{p^*}
+    \label{eq:ns_momentum_matrixform_split}
+\end{equation}
+The matrix $\mathbf{A}$ contains the diagonal components of $\mathbf{M}$:
+\begin{equation}
+    \mathbf{A} =
+    \begin{pmatrix}
+        A_{1,1} & 0 & 0 & \dots & 0\\
+        0 & A_{2,2} & 0 & \dots & 0\\
+        0 & 0 & A_{3,3} & \dots & 0\\
+        \vdots  & \vdots  & \vdots  & \ddots & \vdots\\
+        0 & 0 & 0 & \dots & A_{n,n}\\
+    \end{pmatrix}
+    \label{eq:a_matrix}
+\end{equation}
+The matrix $\mathbf{A}$ is sometimes denoted $a_p$ in the literature. $\mathbf{A}$ is easily inverted resulting in $\mathbf{A}^{-1}$:
+\begin{equation}
+    \mathbf{A}^{-1} =
+    \begin{pmatrix}
+        1/A_{1,1} & 0 & 0 & \dots & 0\\
+        0 & 1/A_{2,2} & 0 & \dots & 0\\
+        0 & 0 & 1/A_{3,3} & \dots & 0\\
+        \vdots  & \vdots  & \vdots  & \ddots & \vdots\\
+        0 & 0 & 0 & \dots & 1/A_{n,n}\\
+    \end{pmatrix}
+    \label{eq:a_inv_matrix}
+\end{equation}
+The matrix $\mathbf{A}^{-1}$ is sometimes denoted $1/a_p$ in the literature. The matrix $\mathbf{H}$ is evaluated explicitly using the velocity from the previous iteration. Hence it is known:
+\begin{equation}
+    \mathbf{H} = \mathbf{A}\mathbf{U} - \mathbf{M}\mathbf{U}
+    \label{eq:h_matrix}
+\end{equation}
+We proceed with deriving a pressure equation. This is done by multiplying both sides of equation \ref{eq:ns_momentum_matrixform_split} by $\mathbf{A}^{-1}$ and rearrange for $\mathbf{U}$:
+\begin{equation}
+    \mathbf{U} = \mathbf{A}^{-1}\mathbf{H} - \mathbf{A}^{-1}\nabla{p^*}
+    \label{eq:ns_momentum_matrixform_rearranged}
+\end{equation}
+Substituting equation \ref{eq:ns_momentum_matrixform_rearranged} into the continuity equation (\ref{eq:continuity}) and rearranging we arrive at a Poisson equation for pressure:
+\begin{equation}
+    \nabla\cdot(\mathbf{A}^{-1}\nabla{p^*}) = \nabla\cdot(\mathbf{A}^{-1}\mathbf{H})
+    \label{eq:poisson}
+\end{equation}
+where $p^*$ is unknown. Equation \ref{eq:poisson} is used to couple pressure and velocity given $\mathbf{A}^{-1}$ and $\mathbf{H}$.
+\vspace{5mm}\\
+Notation for $\mathbf{M}$, $\mathbf{A}$ etc. used in \texttt{icoFoam.C} is documented in table \ref{table:icofoam_notation}.
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{ c | c }
+    Algebraic & C++ \\
+    \hline\hline
+    $\mathbf{M}$ & \texttt{UEqu} \\
+    \hline
+    $\mathbf{A}$ & \texttt{UEqu.A()} \\
+    \hline
+    $\mathbf{H}$ & \texttt{UEqu.H()} \\
+    \hline
+    $\mathbf{A}^{-1}$ & \texttt{rAU} \\
+    \hline
+    $\mathbf{A}^{-1}\mathbf{H}$ & \texttt{HbyA}
+\end{tabular}
+\end{center}
+\caption{Notation used in \texttt{icoFoam.C}}
+\label{table:icofoam_notation}
+\end{table}
+\vspace{5mm}\\
+The volVectorField, \texttt{HbyA}, is also represented as a surfaceScalarField (i.e. the flux of \texttt{HbyA}) by interpolating onto cell faces and taking the dot product of the face normal vectors. This surfaceScalarField is denoted \texttt{phiHbyA} and is used in solving the pressure Poisson equation.
+\section{PISO algorithm}
+The icoFoam solver uses the PISO (Pressure-Implicit with Splitting of Operators) pressure-velocity coupling algorithm to solve the governing equations and iterate forward in time.
+\subsection{PISO algorithm steps}
+Each step of the algorithm is documented here with reference to the icoFoam source code.
+\subsection*{Step 1: Solve the momentum predictor}
+Given the current pressure and velocity fields; solve the momentum equation (\ref{eq:ns_momentum_matrixform}) for $\mathbf{U}$:
+\begin{verbatim}
+fvVectorMatrix UEqn
+(
+    fvm::ddt(U)               // Local acceleration term
+    + fvm::div(phi, U)        // Convective acceleration term
+    - fvm::laplacian(nu, U)   // Viscous term
+);
+
+if (piso.momentumPredictor())
+{
+    solve(UEqn == -fvc::grad(p));
+}
+\end{verbatim}
+This yields a velocity field which does not satisfy the continuity equation (\ref{eq:continuity}).
+
+\subsection*{Step 2: Calculate $\mathbf{A}^{-1}$ and $\mathbf{A}^{-1}\mathbf{H}$ fields}
+Calculate the $\mathbf{A}^{-1}$ and $\mathbf{A}^{-1}\mathbf{H}$ fields from the current velocity field:
+\begin{verbatim}
+volScalarField rAU(1.0/UEqn.A());
+
+volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p));
+\end{verbatim}
+
+\subsection*{Step 3.1: Calculate \texttt{phiHbyA}}
+Calculate the flux of \texttt{HbyA} as the surfaceScalarField \texttt{phiHbyA}:
+\begin{verbatim}
+surfaceScalarField phiHbyA
+(
+    "phiHbyA",
+    fvc::flux(HbyA)
+    + fvc::interpolate(rAU)*fvc::ddtCorr(U, phi)
+);
+\end{verbatim}
+The second term in \texttt{phiHbyA} is the Rhie-Chow corrector \cite{Rhie1983}???
+\subsection*{Step 3.2: Adjust boundary faces}
+Adjust the balance of fluxes on boundary faces (inlets and outlets) to obey continuity: 
+\begin{verbatim}
+adjustPhi(phiHbyA, U, p);
+\end{verbatim}
+Update the pressure on boundary faces where pressure flux is imposed:
+\begin{verbatim}
+constrainPressure(p, U, phiHbyA, rAU);
+\end{verbatim}
+
+\subsection*{Step 4: Solve the pressure equation (non-orthogonal corrector loop)}
+Solve the Poisson equation (\ref{eq:poisson}) for the updated pressure field. Repeat for \textit{n} non-orthogonal corrector loops:
+\begin{verbatim}
+fvScalarMatrix pEqn
+(
+    fvm::laplacian(rAU, p) == fvc::div(phiHbyA)
+);
+
+pEqn.setReference(pRefCell, pRefValue);
+
+pEqn.solve();
+\end{verbatim}
+On the final non-orthogonality correction, correct the flux using the most up-to-date pressure field:
+\begin{verbatim}
+if (piso.finalNonOrthogonalIter())
+{
+    phi = phiHbyA - pEqn.flux();
+}
+\end{verbatim}
+
+\subsection*{Step 5: Using updated pressure field, calculate flux-corrected velocity field}
+With the updated pressure field, calculate the corrected velocity field via equation \ref{eq:ns_momentum_matrixform_rearranged}:
+\begin{verbatim}
+U = HbyA - rAU*fvc::grad(p);
+\end{verbatim}
+Impose boundary conditions on bounding faces:
+\begin{verbatim}
+U.correctBoundaryConditions();
+\end{verbatim}
+The resulting velocity field now satisfies the continuity equation (\ref{eq:continuity}).
+
+\subsection*{Step 6: Using flux-corrected velocity field repeat PISO corrector loop}
+Using the flux-corrected velocity field return to Step 2 and repeat Step 2 to Step 5 for \textit{n} PISO corrector loops. This way the momentum predictor is solved once per iteration. Several PISO corrector inner loops are preformed per iteration. In practice, two PISO corrector loops are typically performed per iteration to arrive at a "converged" pressure field.
+
+\subsection{PISO algorithm functions}
+PISO loop functions found in \texttt{icoFoam.C} are documented in table \ref{table:piso_loop_functions}.
+\begin{table}[ht]
+\begin{center}
+\begin{tabularx}{\textwidth}{ c | p{105mm} }
+    Function & Description \\
+    \hline\hline
+    \texttt{constrainHbyA()} & Ensure equation \ref{eq:ns_momentum_matrixform_rearranged} is satisfied on boundary faces.\\
+    \hline
+    \texttt{fvc::flux()} & Return surfaceScalarField representing cell face flux obtained from a given volVectorField. \\
+    \hline
+    \texttt{fvc::interpolate()} & Interpolate cell centered field onto cell faces. \\
+    \hline
+    \texttt{fvc::ddtCorr()} & Included as part of the correction to the Rhie-Chow interpolation \cite{Rhie1983}???\\
+    \hline
+    \texttt{adjustPhi()} & Adjust balance of fluxes on boundary faces (inlets and outlets) to obey continuity. \\
+    \hline
+    \texttt{constrainPressure()} & Update the pressure on boundary faces where a pressure flux is imposed. \\
+\end{tabularx}
+\end{center}
+\caption{Table to test captions and labels}
+\label{table:piso_loop_functions}
+\end{table}
+
+\chapter{Forces and moments acting on porous bodies}
+\section{Conventional forces and moments calculation}
+The conventional forces and moments calculation considers the various contributions to the total forces and moments acting on a porous body as described by the DBF momentum equation (\ref{eq:dbf_momentum}). These include normal pressure, tangential viscous, Darcy and Forchheimer contributions.
+\subsection{Normal pressure contribution}
+The normal pressure force contribution is calculated as a surface integral at the clear fluid - porous media interface. This is written in discrete form as:
+\begin{equation}
+    d\mathbf{F}_p|_i = \rho\mathbf{A}_i(p_i^*-p_{ref}^*)
+    \label{eq:dFpi}
+\end{equation}
+\begin{equation}
+    \mathbf{F}_p = \sum_i d\mathbf{F}_p|_i
+    \label{eq:Fp}
+\end{equation}
+where $\mathbf{A}_i$ is the $i^{th}$ boundary face area vector. The normal pressure moment contribution is given, in discrete form, as:
+\begin{equation}
+    d\mathbf{M}_p|_i = \mathbf{r}_i\times d\mathbf{F}_p|_i
+    \label{eq:dMpi}
+\end{equation}
+\begin{equation}
+    \mathbf{M}_p = \sum_i d\mathbf{M}_p|_i
+    \label{eq:Mp}
+\end{equation}
+where $\mathbf{r}_i$ is the $i^{th}$ boundary face position vector.
+\subsection{Tangential viscous contribution}
+The tangential force contribution is calculated as a surface integral at the clear fluid - porous media interface. This is written in discrete form as:
+\begin{equation}
+    d\mathbf{F}_v|_i = \mathbf{A}_i\cdot \pmb{\tau}_i
+    \label{eq:dFvi}
+\end{equation}
+\begin{equation}
+    \mathbf{F}_v = \sum_i d\mathbf{F}_v|_i
+    \label{eq:Fv}
+\end{equation}
+where $\pmb{\tau}_i$ is the viscous stress tensor on the boundary face. The tangential viscous moment contribution is given, in discrete form, as:
+\begin{equation}
+    d\mathbf{M}_v|_i = \mathbf{r}_i\times d\mathbf{F}_v|_i
+    \label{eq:dMvi}
+\end{equation}
+\begin{equation}
+    \mathbf{M}_v = \sum_i d\mathbf{M}_v|_i
+    \label{eq:Mv}
+\end{equation}
+\subsection{Darcy contribution}
+The Darcy force contribution is calculated as a volume integral. Considering the third term on the RHS of equation \ref{eq:dbf_momentum} the Darcy force contribution is given, in discrete form, as:
+\begin{equation}
+    d\mathbf{F}_d|_i = \rho\mathbf{V}_i(\frac{\nu}{K}\mathbf{u})
+    \label{eq:dFdi}
+\end{equation}
+\begin{equation}
+    \mathbf{F}_d = \sum_i d\mathbf{F}_d|_i
+    \label{eq:Fd}
+\end{equation}
+where $\mathbf{V}_i$ is the $i^{th}$ volume element (inside the porous media). The Darcy moment contribution is calculated, in discrete form, as:
+\begin{equation}
+    d\mathbf{M}_d|_i = \mathbf{r}_i\times d\mathbf{F}_d|_i
+    \label{eq:dMdi}
+\end{equation}
+\begin{equation}
+    \mathbf{M}_d = \sum_i d\mathbf{M}_d|_i
+    \label{eq:Md}
+\end{equation}
+\subsection{Forchheimer contribution}
+The Forchheimer force contribution is calculated as a volume integral. Considering the forth term on the RHS of equation \ref{eq:dbf_momentum} the Forchheimer force contribution is given, in discrete form, as:
+\begin{equation}
+    d\mathbf{F}_f|_i = \rho\mathbf{V}_i(\frac{c_{F}}{\sqrt{K}}\lvert\mathbf{u}\rvert\mathbf{u})
+    \label{eq:dFfi}
+\end{equation}
+\begin{equation}
+    \mathbf{F}_f = \sum_i d\mathbf{F}_f|_i
+    \label{eq:Ff}
+\end{equation}
+The Forchheimer moment contribution is calculated, in discrete form, as:
+\begin{equation}
+    d\mathbf{M}_f|_i = \mathbf{r}_i\times d\mathbf{F}_f|_i
+    \label{eq:dMfi}
+\end{equation}
+\begin{equation}
+    \mathbf{M}_f = \sum_i d\mathbf{M}_f|_i
+    \label{eq:Mf}
+\end{equation}
+\section{Vorticity-moment theorem (impulse theory) forces and moments calculation}
+An alternative method for calculating the forces and moments acting on a body is to use the vorticity-moment theorem, or impulse theory. This method has it's origins in the general formulas relating aerodynamic forces and moments to rates of change of vorticity moments originally presented by Wu \cite{Wu1981}. The aerodynamic force acting on a solid body immersed in a fluid region extending to infinity, $R_{f}$, with a reference frame fixed with the body, is given by:
+\begin{equation}
+    \mathbf{F} = - \frac{\rho}{2}\frac{d}{dt} \iiint\limits_{R_{f}} \mathbf{r}\times\pmb{\omega} dR
+    \label{eq:wu_force}
+\end{equation}
+The aerodynamic moment acting on a solid body immersed in $R_{f}$, with a reference frame fixed with the body, is given by:
+\begin{equation}
+    \mathbf{M} = \frac{\rho}{2}\frac{d}{dt} \iiint\limits_{R_{f}} \lvert\mathbf{r}\rvert^2\pmb{\omega} dR
+    \label{eq:wu_moment}
+\end{equation}
+Equations \ref{eq:wu_force} and \ref{eq:wu_moment} are taken from Elements of Vorticity Aerodynamics \cite{Wu2018} which discusses in detail the vorticity-moment theorem and presents versions of \ref{eq:wu_force} and \ref{eq:wu_moment} where the body is moving and rotating relative to the fluid.
+\bibliography{library}
+\bibliographystyle{ieeetr}
+\end{document}

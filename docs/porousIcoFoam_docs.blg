@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d (TeX Live 2020)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: porousIcoFoam_docs.aux
+The style file: ieeetr.bst
+Database file #1: library.bib
+Warning--empty journal in Rhie1983
+Warning--empty journal in Wu1981
+Warning--empty publisher in Wu2018
+You've used 4 entries,
+            1876 wiz_defined-function locations,
+            507 strings with 3920 characters,
+and the built_in function-call counts, 1192 in all, are:
+= -- 132
+> -- 20
+< -- 0
++ -- 9
+- -- 5
+* -- 77
+:= -- 157
+add.period$ -- 5
+call.type$ -- 4
+change.case$ -- 3
+chr.to.int$ -- 0
+cite$ -- 7
+duplicate$ -- 63
+empty$ -- 114
+format.name$ -- 5
+if$ -- 293
+int.to.chr$ -- 0
+int.to.str$ -- 4
+missing$ -- 5
+newline$ -- 16
+num.names$ -- 4
+pop$ -- 14
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 51
+stack$ -- 0
+substring$ -- 112
+swap$ -- 30
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 3
+while$ -- 13
+width$ -- 5
+write$ -- 40
+(There were 3 warnings)
