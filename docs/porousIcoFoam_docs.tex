@@ -7,6 +7,16 @@
 \usepackage{esint}
 \usepackage{tcolorbox}
 \usepackage{tabularx}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=black,      
+    urlcolor=black,
+    citecolor=black,
+    pdftitle={Overleaf Example},
+    pdfpagemode=FullScreen,
+    }
 \graphicspath{ {./images/} }
 \begin{document}
 
@@ -39,7 +49,7 @@ where $\phi=V_f/V$ is porosity, a dimensionless scalar field defined as the rati
 Equation \ref{eq:dbf_momentum} is a macroscopic momentum equation. It should be noted $\mathbf{u} = \phi\mathbf{u}_f$ is the ``Darcy velocity'' and similarly $p^* = \phi{p^*_f}$, where $\mathbf{u}_f$ and $p^*_f$ are the volumetric average (macroscopic)\footnote{The volumetric average (macroscopic) fluid velocity and pressure are those averaged over $V$ in contrast to the true local pore scale fluid velocity and pressure inside the porous media which the macroscopic momentum equation does not resolve.} fluid velocity and kinematic pressure respectively. Hsu and Cheng \cite{Hsu1990} derive equation \ref{eq:dbf_momentum} by volume averaging of the microscopic Navier Stokes conservation equations (\ref{eq:continuity}, \ref{eq:ns_momentum}) over a representative volume.
 
 \chapter{Solving the system of equations in OpenFOAM}
-\section{The system of equations}
+\section{icoFoam solver} \label{sec:icoFoam_solver}
 Lets consider the unsteady, incompressible Navier Stokes continuity and momentum equations:
 \begin{equation}
     \nabla\cdot\mathbf{u} = 0
@@ -151,7 +161,7 @@ Notation for $\mathbf{M}$, $\mathbf{A}$ etc. used in \texttt{icoFoam.C} is docum
 \end{table}
 \vspace{5mm}\\
 The volVectorField, \texttt{HbyA}, is also represented as a surfaceScalarField (i.e. the flux of \texttt{HbyA}) by interpolating onto cell faces and taking the dot product of the face normal vectors. This surfaceScalarField is denoted \texttt{phiHbyA} and is used in solving the pressure Poisson equation.
-\section{PISO algorithm}
+\section{PISO algorithm} \label{sec:PISO_algorithm}
 The icoFoam solver uses the PISO (Pressure-Implicit with Splitting of Operators) pressure-velocity coupling algorithm to solve the governing equations and iterate forward in time.
 \subsection{PISO algorithm steps}
 Each step of the algorithm is documented here with reference to the icoFoam source code.
@@ -233,10 +243,10 @@ U.correctBoundaryConditions();
 The resulting velocity field now satisfies the continuity equation (\ref{eq:continuity}).
 
 \subsection*{Step 6: Using flux-corrected velocity field repeat PISO corrector loop}
-Using the flux-corrected velocity field return to Step 2 and repeat Step 2 to Step 5 for \textit{n} PISO corrector loops. This way the momentum predictor is solved once per iteration. Several PISO corrector inner loops are preformed per iteration. In practice, two PISO corrector loops are typically performed per iteration to arrive at a "converged" pressure field.
+Using the flux-corrected velocity field return to Step 2 and repeat Step 2 to Step 5 for \textit{n} PISO corrector loops. This way the momentum predictor is solved once per iteration. Several PISO corrector inner loops are preformed per iteration. In practice, two PISO corrector loops are typically performed per iteration to arrive at a ``converged'' pressure field.
 
 \subsection{PISO algorithm functions}
-PISO loop functions found in \texttt{icoFoam.C} are documented in table \ref{table:piso_loop_functions}.
+Details of PISO loop functions found in \texttt{icoFoam.C} are documented in table \ref{table:piso_loop_functions}.
 \begin{table}[ht]
 \begin{center}
 \begin{tabularx}{\textwidth}{ c | p{105mm} }
@@ -258,6 +268,36 @@ PISO loop functions found in \texttt{icoFoam.C} are documented in table \ref{tab
 \caption{Table to test captions and labels}
 \label{table:piso_loop_functions}
 \end{table}
+
+\section{porousIcoFoam solver}
+Following the same solution algorithm detailed in §\ref{sec:icoFoam_solver} and §\ref{sec:PISO_algorithm}, a new solver has been implemented in OpenFOAM to solve the DBF governing equations (\ref{eq:dbf_continuity}, \ref{eq:dbf_momentum}). This solver is a modified version of the built in icoFoam solver called porousIcoFoam. The main modification is in the definition of the \texttt{UEqu} in \texttt{porousIcoFoam.C} which becomes:
+\begin{verbatim}
+fvVectorMatrix UEqn
+(
+    (1.0/pty)*fvm::ddt(U)                 // Local acceleration term
+    + (1.0/sqr(pty))*fvm::div(phi, U)     // Convective acceleration term
+    - (1.0/pty)*fvm::laplacian(nu, U)     // Viscous term
+    + fvm::SuSp(nu/K_, U)                 // Darcy term
+    + fvm::SuSp((cf/sqrt(K_))*mag(U), U)  // Forchheimer term
+);
+\end{verbatim}
+where \texttt{pty} and \texttt{K\_} are porosity (volScalarField) and permeability (volScalarField) respectively and \texttt{cf} is the dimensionless form-drag constant (dimensionedScalar). These new parameters are read into the solver via the \texttt{creatFields.H} header file and must be correctly defined in the \texttt{./0/*} and \texttt{./constant/transportProperties} dictionaries in case directory.
+
+\subsection{poroucIcoFoam case setup}
+
+\subsection{poroucIcoFoam verification}
+Neale and Nadar \cite{NealeNadar1974} present an analytical solution for the velocity profile for flow within a channel bound above by a solid wall ($y=h$) and below by a porous medium ($0>y>H$) for the Brinkman extended Darcy law (i.e. dropping the material derivative and Forchheimer terms in equation \ref{eq:dbf_momentum}). For the channel flow problem considered here, the DBF momentum equation takes the form:
+\begin{equation}
+    \frac{\mu}{K}u + \frac{\mu}{\phi}\frac{d^2u}{dy^2} = \frac{dp}{dx}
+    \label{eq:channel_dbf_momentum}
+\end{equation}
+The analytical solution is analogous to the solution of Poiseuille pipe flow. The no slip condition is applied on the upper bounding wall ($y=h$) in the clear fluid region and a slip condition is applied on the lower wall ($y=H$) of the porous media region. Full expressions for the analytical solution for the velocity profiles in the clear fluid and porous media regions are given in Neale and Nadar \cite{NealeNadar1974} but are omitted here for brevity.
+\vspace{5mm}\\
+IMAGE
+\vspace{5mm}\\
+It is possible to solve the channel flow problem numerically applying a constant pressure gradient along the length of a two-dimensional domain and no slip/slip boundary conditions at the upper and lower bounds of the domain respectively. A simulation domain is set up with $h=H=1\ m$, $L=2\ m$ and $dP^*/dx=1\ ms^{-2}$. Kinematic viscosity, $\nu$, is equal to $0.1\ m^{2}s^{-1}$. Density, $\rho$ is set to unity, hence $\mu\equiv\nu$ and $p\equiv p^*$. A matrix of analytical and numerical solutions are presented here for $\phi=[0.75,\ 0.95]$ and $Da=[10^{-2},\ 10^{-4}]$ where $Da=K/l^{2}$ is the Darcy number, a dimensionless number describing porous media permeability, $l$ is the characteristic length and is set equal to $h$. Results are presented here in non-dimensional form with the characteristic flow speed, $U_{\infty}$, taken as the average flow speed in the clear fluid region calculated from the analytical solutions. The Reynolds number, $Re$, is calculated as $Re=U_{\infty}l/\nu$ for each case.
+\vspace{5mm}\\
+IMAGE
 
 \chapter{Forces and moments acting on porous bodies}
 \section{Conventional forces and moments calculation}

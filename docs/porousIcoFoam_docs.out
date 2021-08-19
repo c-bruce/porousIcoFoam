@@ -1,0 +1,16 @@
+\BOOKMARK [0][-]{chapter.1}{The Darcy Brinkman Forchheimer governing equations}{}% 1
+\BOOKMARK [0][-]{chapter.2}{Solving the system of equations in OpenFOAM}{}% 2
+\BOOKMARK [1][-]{section.2.1}{icoFoam solver}{chapter.2}% 3
+\BOOKMARK [1][-]{section.2.2}{PISO algorithm}{chapter.2}% 4
+\BOOKMARK [2][-]{subsection.2.2.1}{PISO algorithm steps}{section.2.2}% 5
+\BOOKMARK [2][-]{subsection.2.2.2}{PISO algorithm functions}{section.2.2}% 6
+\BOOKMARK [1][-]{section.2.3}{porousIcoFoam solver}{chapter.2}% 7
+\BOOKMARK [2][-]{subsection.2.3.1}{poroucIcoFoam case setup}{section.2.3}% 8
+\BOOKMARK [2][-]{subsection.2.3.2}{poroucIcoFoam verification}{section.2.3}% 9
+\BOOKMARK [0][-]{chapter.3}{Forces and moments acting on porous bodies}{}% 10
+\BOOKMARK [1][-]{section.3.1}{Conventional forces and moments calculation}{chapter.3}% 11
+\BOOKMARK [2][-]{subsection.3.1.1}{Normal pressure contribution}{section.3.1}% 12
+\BOOKMARK [2][-]{subsection.3.1.2}{Tangential viscous contribution}{section.3.1}% 13
+\BOOKMARK [2][-]{subsection.3.1.3}{Darcy contribution}{section.3.1}% 14
+\BOOKMARK [2][-]{subsection.3.1.4}{Forchheimer contribution}{section.3.1}% 15
+\BOOKMARK [1][-]{section.3.2}{Vorticity-moment theorem \(impulse theory\) forces and moments calculation}{chapter.3}% 16
