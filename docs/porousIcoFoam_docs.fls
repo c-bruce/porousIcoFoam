@@ -32,6 +32,12 @@ INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/graphics-def/pdftex.def
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/graphics-def/pdftex.def
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/caption/subcaption.sty
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/caption/subcaption.sty
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/caption/caption.sty
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/caption/caption.sty
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/caption/caption3.sty
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/caption/caption3.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsmath.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsmath.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amstext.sty
@@ -245,6 +251,29 @@ INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmtt10.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmtt12.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmti10.tfm
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/verificationDomain.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/verificationDomain.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/verificationDomain.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/channelFlow.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/channelFlow.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/channelFlow.png
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmbx7.tfm
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/esint/esint10.tfm
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/esint/esint10.tfm
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-75_Da1e-2.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-75_Da1e-2.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-75_Da1e-2.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-75_Da1e-4.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-75_Da1e-4.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-75_Da1e-4.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-95_Da1e-2.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-95_Da1e-2.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-95_Da1e-2.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-95_Da1e-4.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-95_Da1e-4.png
+INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/./images/pty0-95_Da1e-4.png
 INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/porousIcoFoam_docs.bbl
 INPUT /Users/callumbruce/OneDrive - University of Edinburgh/OpenFOAM/callumbruce-8/applications/solvers/incompressible/porousIcoFoam/docs/porousIcoFoam_docs.bbl
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmr17.tfm
@@ -263,9 +292,11 @@ INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb

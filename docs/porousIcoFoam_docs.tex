@@ -3,6 +3,7 @@
 \usepackage{float}
 \usepackage[section]{placeins}
 \usepackage{graphicx}
+\usepackage{subcaption}
 \usepackage{amsmath}
 \usepackage{esint}
 \usepackage{tcolorbox}
@@ -156,7 +157,7 @@ Notation for $\mathbf{M}$, $\mathbf{A}$ etc. used in \texttt{icoFoam.C} is docum
     $\mathbf{A}^{-1}\mathbf{H}$ & \texttt{HbyA}
 \end{tabular}
 \end{center}
-\caption{Notation used in \texttt{icoFoam.C}}
+\caption{Notation used in \texttt{icoFoam.C}.}
 \label{table:icofoam_notation}
 \end{table}
 \vspace{5mm}\\
@@ -265,9 +266,9 @@ Details of PISO loop functions found in \texttt{icoFoam.C} are documented in tab
     \texttt{constrainPressure()} & Update the pressure on boundary faces where a pressure flux is imposed. \\
 \end{tabularx}
 \end{center}
-\caption{Table to test captions and labels}
+\caption{Table to test captions and labels.}
 \label{table:piso_loop_functions}
-\end{table}
+\end{table}\\
 
 \section{porousIcoFoam solver}
 Following the same solution algorithm detailed in §\ref{sec:icoFoam_solver} and §\ref{sec:PISO_algorithm}, a new solver has been implemented in OpenFOAM to solve the DBF governing equations (\ref{eq:dbf_continuity}, \ref{eq:dbf_momentum}). This solver is a modified version of the built in icoFoam solver called porousIcoFoam. The main modification is in the definition of the \texttt{UEqu} in \texttt{porousIcoFoam.C} which becomes:
@@ -292,12 +293,60 @@ Neale and Nadar \cite{NealeNadar1974} present an analytical solution for the vel
     \label{eq:channel_dbf_momentum}
 \end{equation}
 The analytical solution is analogous to the solution of Poiseuille pipe flow. The no slip condition is applied on the upper bounding wall ($y=h$) in the clear fluid region and a slip condition is applied on the lower wall ($y=H$) of the porous media region. Full expressions for the analytical solution for the velocity profiles in the clear fluid and porous media regions are given in Neale and Nadar \cite{NealeNadar1974} but are omitted here for brevity.
-\vspace{5mm}\\
-IMAGE
-\vspace{5mm}\\
-It is possible to solve the channel flow problem numerically applying a constant pressure gradient along the length of a two-dimensional domain and no slip/slip boundary conditions at the upper and lower bounds of the domain respectively. A simulation domain is set up with $h=H=1\ m$, $L=2\ m$ and $dP^*/dx=1\ ms^{-2}$. Kinematic viscosity, $\nu$, is equal to $0.1\ m^{2}s^{-1}$. Density, $\rho$ is set to unity, hence $\mu\equiv\nu$ and $p\equiv p^*$. A matrix of analytical and numerical solutions are presented here for $\phi=[0.75,\ 0.95]$ and $Da=[10^{-2},\ 10^{-4}]$ where $Da=K/l^{2}$ is the Darcy number, a dimensionless number describing porous media permeability, $l$ is the characteristic length and is set equal to $h$. Results are presented here in non-dimensional form with the characteristic flow speed, $U_{\infty}$, taken as the average flow speed in the clear fluid region calculated from the analytical solutions. The Reynolds number, $Re$, is calculated as $Re=U_{\infty}l/\nu$ for each case.
-\vspace{5mm}\\
-IMAGE
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=75mm]{"verificationDomain.png"}
+    \caption{Verification domain.}
+\end{figure}\\
+It is possible to solve the channel flow problem numerically applying a constant pressure gradient along the length of a two-dimensional domain and no slip/slip boundary conditions at the upper and lower bounds of the domain respectively. A simulation domain is set up with $h=H=1\ m$, $L=2\ m$ and $dP^*/dx=1\ ms^{-2}$. Kinematic viscosity, $\nu$, is equal to $0.1\ m^{2}s^{-1}$. Density, $\rho$ is set to unity, hence $\mu\equiv\nu$ and $p\equiv p^*$. The numerical solution is solved for on an orthogonal, uniform $200\times200$ rectilinear grid with $0.01\ m$ cell size. A matrix of analytical and numerical solutions for the velocity profile in the channel are presented in figure \ref{fig:porousIcoFoam_verification} for $\phi=[0.75,\ 0.95]$ and $Da=[10^{-2},\ 10^{-4}]$ where $Da=K/l^{2}$ is the Darcy number, a dimensionless number describing porous media permeability. $l$ is the characteristic length and is set equal to $h$. Results are presented in non-dimensional form with the characteristic velocity, $U_{\infty}$, taken as the mean flow velocity in the clear fluid region when it is bound above and below by a solid wall with the no slip boundary condition (Poiseuille pipe flow, see Figure \ref{fig:poiseuille_pipe_flow}). $U_{\infty}=0.8167\ ms^{-1}$ and hence, the Reynolds number, $Re=8.167$. Neale and Nadar \cite{NealeNadar1974} provide an expression for mass flow rate per unit width, $M$, expressed as $M/M_0$ where $M_0$ denotes the flow which would prevail in the clear fluid region if the lower wall were impermeable (Poiseuille pipe flow, see Figure \ref{fig:poiseuille_pipe_flow}). Results for $M/M_0|_{analytical}$ are compared against those for $M/M_0|_{numerical}$ in table \ref{table:M_M0}.
+\begin{table}[ht]
+\centering
+\begin{tabular}{ c | c | c | c }
+        & $M/M_0|_{analytical}$ & $M/M_0|_{numerical}$ & Difference (\%) \\
+    \hline\hline
+    $\phi=0.75\ Da=10^{-2}$ & 1.294319 & 1.346897 & 3.90\\
+    \hline
+    $\phi=0.75\ Da=10^{-4}$ & 1.026353 & 1.033239 & 0.67\\
+    \hline
+    $\phi=0.95\ Da=10^{-2}$ & 1.321106 & 1.317734 & 0.26\\
+    \hline
+    $\phi=0.95\ Da=10^{-4}$ & 1.030367 & 1.029552 & 0.08\\
+\end{tabular}
+\caption{Mass flow rate per unit width, $M/M_0$ results.}
+\label{table:M_M0}
+\end{table}\\
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{75mm}
+        \includegraphics[width=75mm]{"channelFlow.png"}
+        \caption{Poiseuille pipe flow. Velocity profile, u(y) (solid blue line). Mean velocity, $U_{\infty}$ (dashed blue line).}
+        \label{fig:poiseuille_pipe_flow}
+    \end{subfigure}
+    \\
+    \begin{subfigure}[b]{75mm}
+        \includegraphics[width=75mm]{"pty0-75_Da1e-2.png"}
+        \caption{$\phi=0.75\ Da=10^{-2}$}
+        \label{fig:pty075_Da1e-2}
+    \end{subfigure}
+    \begin{subfigure}[b]{75mm}
+        \includegraphics[width=75mm]{"pty0-75_Da1e-4.png"}
+        \caption{$\phi=0.75\ Da=10^{-4}$}
+        \label{fig:pty075_Da1e-4}
+    \end{subfigure}
+    \\
+    \begin{subfigure}[b]{75mm}
+        \includegraphics[width=75mm]{"pty0-95_Da1e-2.png"}
+        \caption{$\phi=0.95\ Da=10^{-2}$}
+        \label{fig:pty095_Da1e-2}
+    \end{subfigure}
+    \begin{subfigure}[b]{75mm}
+        \includegraphics[width=75mm]{"pty0-95_Da1e-4.png"}
+        \caption{$\phi=0.95\ Da=10^{-4}$}
+        \label{fig:pty095_Da1e-4}
+    \end{subfigure}
+    \caption{porousIcoFoam verification cases. Analytical velocity profile (solid blue line), numerical velocity profile (red dots) for cases b), c), d) and e).}\label{fig:porousIcoFoam_verification}
+\end{figure}\\
+Varying $Da$ has a greater impact on the velocity profile compared with varying $\phi$. With decreasing $Da$ the problem approximates Poiseuille pipe flow where there is negligible fluid flow in the porous media region. It is evident from the velocity profiles in figure \ref{fig:porousIcoFoam_verification} and $M/M_0$ results in table \ref{table:M_M0} that the numerical solutions do not match exactly the analytical solutions. It is posed that these discrepancies originate from the implementation of the convective term in equation \ref{eq:dbf_momentum}. According to the Dupuit-Forchheimer relationship a factor of $1/\phi$ should be taken inside the gradient term to account for non-homogeneous porosity in the single domain model; neglecting to do so is a simplification which assumes negligible spatial variation in porosity. The largest discrepancy between analytical and numerical solutions being in the case of $\phi=0.75,\ Da=10^{-2}$ corroborates this. The effect of porosity variation is not required for a high-porosity medium, but it should be considered for a dense porous medium \cite{Vafai1995}.
 
 \chapter{Forces and moments acting on porous bodies}
 \section{Conventional forces and moments calculation}
