@@ -104,7 +104,8 @@ int main(int argc, char *argv[])
                 pEqn.setReference(pRefCell, pRefValue);
 
                 // STEP 3: Solve the pressure equation [ div(A^-1*grad(p)) = div(A^-1*H) ]
-                pEqn.solve(); // Solve for the updated pressure field
+                pEqn.solve(mesh.solver(p.select(piso.finalInnerIter()))); // Solve for the updated pressure field - OF2106
+                //pEqn.solve(); // Solve for the updated pressure field - OF9
 
                 if (piso.finalNonOrthogonalIter())
                 {

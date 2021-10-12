@@ -16,14 +16,16 @@ dimensionedScalar nu
 (
     "nu",
     dimViscosity,
-    transportProperties.lookup("nu")
+    transportProperties // - OF2106
+    //transportProperties.lookup("nu") // - OF9
 );
 
 dimensionedScalar cf
 (
     "cf",
     dimless,
-    transportProperties.lookup("cf")
+    transportProperties // - OF2106
+    //transportProperties.lookup("cf") // - OF9
 );
 
 Info<< "Reading field p\n" << endl;
