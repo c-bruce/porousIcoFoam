@@ -47,15 +47,15 @@
 \citation{Rhie1983}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2.2}PISO algorithm functions}{5}{subsection.2.2.2}\protected@file@percent }
 \citation{NealeNadar1974}
-\citation{NealeNadar1974}
-\citation{NealeNadar1974}
-\citation{Vafai1995}
 \@writefile{lot}{\contentsline {table}{\numberline {2.2}{\ignorespaces Table to test captions and labels.\relax }}{6}{table.caption.9}\protected@file@percent }
 \newlabel{table:piso_loop_functions}{{2.2}{6}{Table to test captions and labels.\relax }{table.caption.9}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2.3}porousIcoFoam solver}{6}{section.2.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}poroucIcoFoam case setup}{6}{subsection.2.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3.2}poroucIcoFoam verification}{6}{subsection.2.3.2}\protected@file@percent }
-\newlabel{eq:channel_dbf_momentum}{{2.11}{6}{poroucIcoFoam verification}{equation.2.3.11}{}}
+\citation{NealeNadar1974}
+\citation{NealeNadar1974}
+\citation{Vafai1995}
+\newlabel{eq:channel_dbf_momentum}{{2.11}{7}{poroucIcoFoam verification}{equation.2.3.11}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces Verification domain.\relax }}{7}{figure.caption.10}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {2.3}{\ignorespaces Mass flow rate per unit width, $M/M_0$ results.\relax }}{8}{table.caption.11}\protected@file@percent }
 \newlabel{table:M_M0}{{2.3}{8}{Mass flow rate per unit width, $M/M_0$ results.\relax }{table.caption.11}{}}
@@ -75,32 +75,55 @@
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{toc}{\contentsline {section}{\numberline {3.1}Conventional forces and moments calculation}{10}{section.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Normal pressure contribution}{10}{subsection.3.1.1}\protected@file@percent }
-\newlabel{eq:dFpi}{{3.1}{10}{Normal pressure contribution}{equation.3.1.1}{}}
-\newlabel{eq:Fp}{{3.2}{10}{Normal pressure contribution}{equation.3.1.2}{}}
-\newlabel{eq:dMpi}{{3.3}{10}{Normal pressure contribution}{equation.3.1.3}{}}
-\newlabel{eq:Mp}{{3.4}{10}{Normal pressure contribution}{equation.3.1.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Tangential viscous contribution}{10}{subsection.3.1.2}\protected@file@percent }
-\newlabel{eq:dFvi}{{3.5}{10}{Tangential viscous contribution}{equation.3.1.5}{}}
-\newlabel{eq:Fv}{{3.6}{10}{Tangential viscous contribution}{equation.3.1.6}{}}
+\newlabel{sec:Conventional_forces_moments}{{3.1}{10}{Conventional forces and moments calculation}{section.3.1}{}}
+\newlabel{eq:Ftot}{{3.1}{10}{Conventional forces and moments calculation}{equation.3.1.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Pressure contribution}{10}{subsection.3.1.1}\protected@file@percent }
+\newlabel{subsec:Pressure}{{3.1.1}{10}{Pressure contribution}{subsection.3.1.1}{}}
+\newlabel{eq:dFpi}{{3.2}{10}{Pressure contribution}{equation.3.1.2}{}}
+\newlabel{eq:Fp}{{3.3}{10}{Pressure contribution}{equation.3.1.3}{}}
+\newlabel{eq:dMpi}{{3.4}{10}{Pressure contribution}{equation.3.1.4}{}}
+\newlabel{eq:Mp}{{3.5}{10}{Pressure contribution}{equation.3.1.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Viscous contribution}{10}{subsection.3.1.2}\protected@file@percent }
+\newlabel{subsec:Viscous}{{3.1.2}{10}{Viscous contribution}{subsection.3.1.2}{}}
+\newlabel{eq:dFvi}{{3.6}{10}{Viscous contribution}{equation.3.1.6}{}}
+\newlabel{eq:Fv}{{3.7}{10}{Viscous contribution}{equation.3.1.7}{}}
+\newlabel{eq:dMvi}{{3.8}{11}{Viscous contribution}{equation.3.1.8}{}}
+\newlabel{eq:Mv}{{3.9}{11}{Viscous contribution}{equation.3.1.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}Porous (Darcy) contribution}{11}{subsection.3.1.3}\protected@file@percent }
+\newlabel{subsec:Darcy}{{3.1.3}{11}{Porous (Darcy) contribution}{subsection.3.1.3}{}}
+\newlabel{eq:dFdi}{{3.10}{11}{Porous (Darcy) contribution}{equation.3.1.10}{}}
+\newlabel{eq:Fd}{{3.11}{11}{Porous (Darcy) contribution}{equation.3.1.11}{}}
+\newlabel{eq:dMdi}{{3.12}{11}{Porous (Darcy) contribution}{equation.3.1.12}{}}
+\newlabel{eq:Md}{{3.13}{11}{Porous (Darcy) contribution}{equation.3.1.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.4}Porous (Forchheimer) contribution}{11}{subsection.3.1.4}\protected@file@percent }
+\newlabel{subsec:Forchheimer}{{3.1.4}{11}{Porous (Forchheimer) contribution}{subsection.3.1.4}{}}
+\newlabel{eq:dFfi}{{3.14}{11}{Porous (Forchheimer) contribution}{equation.3.1.14}{}}
+\newlabel{eq:Ff}{{3.15}{11}{Porous (Forchheimer) contribution}{equation.3.1.15}{}}
+\newlabel{eq:dMfi}{{3.16}{11}{Porous (Forchheimer) contribution}{equation.3.1.16}{}}
+\newlabel{eq:Mf}{{3.17}{11}{Porous (Forchheimer) contribution}{equation.3.1.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.5}forcesConventional functionObject}{11}{subsection.3.1.5}\protected@file@percent }
+\newlabel{subsec:forcesConventional}{{3.1.5}{11}{forcesConventional functionObject}{subsection.3.1.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces forcesConventional functionObject properties\relax }}{12}{table.caption.13}\protected@file@percent }
+\newlabel{table:forcesConventional_dictionary}{{3.1}{12}{forcesConventional functionObject properties\relax }{table.caption.13}{}}
+\newlabel{fig:pty075_Da1e-2}{{3.1a}{13}{Pressure $C_D$ contribution\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:pty075_Da1e-2}{{a}{13}{Pressure $C_D$ contribution\relax }{figure.caption.14}{}}
+\newlabel{fig:pty075_Da1e-4}{{3.1b}{13}{Viscous $C_D$ contribution\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:pty075_Da1e-4}{{b}{13}{Viscous $C_D$ contribution\relax }{figure.caption.14}{}}
+\newlabel{fig:pty095_Da1e-2}{{3.1c}{13}{Porous (Darcy) $C_D$ contribution\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:pty095_Da1e-2}{{c}{13}{Porous (Darcy) $C_D$ contribution\relax }{figure.caption.14}{}}
+\newlabel{fig:pty095_Da1e-4}{{3.1d}{13}{Total $C_D$\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:pty095_Da1e-4}{{d}{13}{Total $C_D$\relax }{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Contributions to total $C_D$ for the two-dimensional porous square cylinder verification case calculated using the built-in and custom approaches.\relax }}{13}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:forcesConventional_verification1}{{3.1}{13}{Contributions to total $C_D$ for the two-dimensional porous square cylinder verification case calculated using the built-in and custom approaches.\relax }{figure.caption.14}{}}
 \citation{Wu1981}
-\newlabel{eq:dMvi}{{3.7}{11}{Tangential viscous contribution}{equation.3.1.7}{}}
-\newlabel{eq:Mv}{{3.8}{11}{Tangential viscous contribution}{equation.3.1.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}Darcy contribution}{11}{subsection.3.1.3}\protected@file@percent }
-\newlabel{eq:dFdi}{{3.9}{11}{Darcy contribution}{equation.3.1.9}{}}
-\newlabel{eq:Fd}{{3.10}{11}{Darcy contribution}{equation.3.1.10}{}}
-\newlabel{eq:dMdi}{{3.11}{11}{Darcy contribution}{equation.3.1.11}{}}
-\newlabel{eq:Md}{{3.12}{11}{Darcy contribution}{equation.3.1.12}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.4}Forchheimer contribution}{11}{subsection.3.1.4}\protected@file@percent }
-\newlabel{eq:dFfi}{{3.13}{11}{Forchheimer contribution}{equation.3.1.13}{}}
-\newlabel{eq:Ff}{{3.14}{11}{Forchheimer contribution}{equation.3.1.14}{}}
-\newlabel{eq:dMfi}{{3.15}{11}{Forchheimer contribution}{equation.3.1.15}{}}
-\newlabel{eq:Mf}{{3.16}{11}{Forchheimer contribution}{equation.3.1.16}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.2}Vorticity-moment theorem (impulse theory) forces and moments calculation}{11}{section.3.2}\protected@file@percent }
 \citation{Wu2018}
 \bibdata{library}
-\newlabel{eq:wu_force}{{3.17}{12}{Vorticity-moment theorem (impulse theory) forces and moments calculation}{equation.3.2.17}{}}
-\newlabel{eq:wu_moment}{{3.18}{12}{Vorticity-moment theorem (impulse theory) forces and moments calculation}{equation.3.2.18}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces forcesConventional verification results.\relax }}{14}{table.caption.15}\protected@file@percent }
+\newlabel{table:forcesConventional_verification1}{{3.2}{14}{forcesConventional verification results.\relax }{table.caption.15}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Vorticity-moment theorem (impulse theory) forces and moments calculation}{14}{section.3.2}\protected@file@percent }
+\newlabel{eq:wu_force}{{3.18}{14}{Vorticity-moment theorem (impulse theory) forces and moments calculation}{equation.3.2.18}{}}
+\newlabel{eq:wu_moment}{{3.19}{14}{Vorticity-moment theorem (impulse theory) forces and moments calculation}{equation.3.2.19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}forcesImpulseTheory functionObject}{14}{subsection.3.2.1}\protected@file@percent }
 \bibcite{Hsu1990}{1}
 \bibcite{Rhie1983}{2}
 \bibcite{NealeNadar1974}{3}

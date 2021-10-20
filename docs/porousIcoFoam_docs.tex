@@ -283,6 +283,8 @@ fvVectorMatrix UEqn
 );
 \end{verbatim}
 where \texttt{pty} and \texttt{K\_} are porosity (volScalarField) and permeability (volScalarField) respectively and \texttt{cf} is the dimensionless form-drag constant (dimensionedScalar). These new parameters are read into the solver via the \texttt{creatFields.H} header file and must be correctly defined in the \texttt{./0/*} and \texttt{./constant/transportProperties} dictionaries in case directory.
+\vspace{5mm}\\
+Source code for the porousIcoFoam solver can be downloaded from:\\\href{https://github.com/c-bruce/porousIcoFoam}{https://github.com/c-bruce/porousIcoFoam}.
 
 \subsection{poroucIcoFoam case setup}
 
@@ -346,12 +348,16 @@ It is possible to solve the channel flow problem numerically applying a constant
     \end{subfigure}
     \caption{porousIcoFoam verification cases. Analytical velocity profile (solid blue line), numerical velocity profile (red dots) for cases b), c), d) and e).}\label{fig:porousIcoFoam_verification}
 \end{figure}\\
-Varying $Da$ has a greater impact on the velocity profile compared with varying $\phi$. With decreasing $Da$ the problem approximates Poiseuille pipe flow where there is negligible fluid flow in the porous media region. It is evident from the velocity profiles in figure \ref{fig:porousIcoFoam_verification} and $M/M_0$ results in table \ref{table:M_M0} that the numerical solutions do not match exactly the analytical solutions. It is posed that these discrepancies originate from the implementation of the convective term in equation \ref{eq:dbf_momentum}. According to the Dupuit-Forchheimer relationship a factor of $1/\phi$ should be taken inside the gradient term to account for non-homogeneous porosity in the single domain model; neglecting to do so is a simplification which assumes negligible spatial variation in porosity. The largest discrepancy between analytical and numerical solutions being in the case of $\phi=0.75,\ Da=10^{-2}$ corroborates this. The effect of porosity variation is not required for a high-porosity medium, but it should be considered for a dense porous medium \cite{Vafai1995}.
+Varying $Da$ has a greater impact on the velocity profile compared with varying $\phi$. With decreasing $Da$ the problem approximates Poiseuille pipe flow where there is negligible fluid flow in the porous media region. It is evident from the velocity profiles in figure \ref{fig:porousIcoFoam_verification} and $M/M_0$ results in table \ref{table:M_M0} show that the numerical solutions do not match exactly the analytical solutions. It is posed that these discrepancies originate from the implementation of the convective term in equation \ref{eq:dbf_momentum}. According to the Dupuit-Forchheimer relationship a factor of $1/\phi$ should be taken inside the gradient term to account for non-homogeneous porosity in the single domain model; neglecting to do so is a simplification which assumes negligible spatial variation in porosity. The largest discrepancy between analytical and numerical solutions being in the case of $\phi=0.75,\ Da=10^{-2}$ corroborates this. The effect of porosity variation is not required for a high-porosity medium, but it should be considered for a dense porous medium \cite{Vafai1995}.
 
 \chapter{Forces and moments acting on porous bodies}
-\section{Conventional forces and moments calculation}
-The conventional forces and moments calculation considers the various contributions to the total forces and moments acting on a porous body as described by the DBF momentum equation (\ref{eq:dbf_momentum}). These include normal pressure, tangential viscous, Darcy and Forchheimer contributions.
-\subsection{Normal pressure contribution}
+\section{Conventional forces and moments calculation} \label{sec:Conventional_forces_moments}
+The conventional forces and moments calculation considers the various contributions to the total forces and moments acting on a porous body as described by the DBF momentum equation (\ref{eq:dbf_momentum}). These include pressure, viscous and porous (Darcy and Forchheimer) contributions.
+\begin{equation}
+    \mathbf{F}_{t} = \mathbf{F}_{p} + \mathbf{F}_{v} + \mathbf{F}_{d} + \mathbf{F}_{f}
+    \label{eq:Ftot}
+\end{equation}
+\subsection{Pressure contribution} \label{subsec:Pressure}
 The normal pressure force contribution is calculated as a surface integral at the clear fluid - porous media interface. This is written in discrete form as:
 \begin{equation}
     d\mathbf{F}_p|_i = \rho\mathbf{A}_i(p_i^*-p_{ref}^*)
@@ -371,7 +377,7 @@ where $\mathbf{A}_i$ is the $i^{th}$ boundary face area vector. The normal press
     \label{eq:Mp}
 \end{equation}
 where $\mathbf{r}_i$ is the $i^{th}$ boundary face position vector.
-\subsection{Tangential viscous contribution}
+\subsection{Viscous contribution} \label{subsec:Viscous}
 The tangential force contribution is calculated as a surface integral at the clear fluid - porous media interface. This is written in discrete form as:
 \begin{equation}
     d\mathbf{F}_v|_i = \mathbf{A}_i\cdot \pmb{\tau}_i
@@ -390,7 +396,7 @@ where $\pmb{\tau}_i$ is the viscous stress tensor on the boundary face. The tang
     \mathbf{M}_v = \sum_i d\mathbf{M}_v|_i
     \label{eq:Mv}
 \end{equation}
-\subsection{Darcy contribution}
+\subsection{Porous (Darcy) contribution} \label{subsec:Darcy}
 The Darcy force contribution is calculated as a volume integral. Considering the third term on the RHS of equation \ref{eq:dbf_momentum} the Darcy force contribution is given, in discrete form, as:
 \begin{equation}
     d\mathbf{F}_d|_i = \rho\mathbf{V}_i(\frac{\nu}{K}\mathbf{u})
@@ -409,7 +415,7 @@ where $\mathbf{V}_i$ is the $i^{th}$ volume element (inside the porous media). T
     \mathbf{M}_d = \sum_i d\mathbf{M}_d|_i
     \label{eq:Md}
 \end{equation}
-\subsection{Forchheimer contribution}
+\subsection{Porous (Forchheimer) contribution} \label{subsec:Forchheimer}
 The Forchheimer force contribution is calculated as a volume integral. Considering the forth term on the RHS of equation \ref{eq:dbf_momentum} the Forchheimer force contribution is given, in discrete form, as:
 \begin{equation}
     d\mathbf{F}_f|_i = \rho\mathbf{V}_i(\frac{c_{F}}{\sqrt{K}}\lvert\mathbf{u}\rvert\mathbf{u})
@@ -428,6 +434,105 @@ The Forchheimer moment contribution is calculated, in discrete form, as:
     \mathbf{M}_f = \sum_i d\mathbf{M}_f|_i
     \label{eq:Mf}
 \end{equation}
+\subsection{forcesConventional functionObject} \label{subsec:forcesConventional}
+An OpenFOAM functionObject, forcesConventional, has been written to calculate the forces and moments acting on a porous body. This functionObject is intended for use with the porousIcoFoam solver. Pressure, viscous and porous (Darcy and Forchheimer) force contributions are calculated using the definitions given in §\ref{subsec:Pressure}, \ref{subsec:Viscous}, \ref{subsec:Darcy}, \ref{subsec:Forchheimer}.
+\vspace{5mm}\\
+To use the forcesConventional functionObject the following dictionary must be added to \texttt{./system/controlDict/functions}:
+\begin{verbatim}
+forces_conventional
+{
+// Mandatory entries
+type	forcesConventional;
+libs	("libmyForcesConventionalFunctionObject.so");
+// Patches
+patches	(interface1);
+// rho
+rho		1.0;
+
+// Optional entries
+// Field names
+p		p;
+U		U;
+K_		K_;
+// pRef
+pRef	0.0;
+// Calculate for a porous body?
+porosity	true;
+porousZone	porousMedia;
+}
+\end{verbatim}
+Properties in the forcesConventional dictionary entry are documented in table \ref{table:forcesConventional_dictionary}.
+\begin{table}[ht]
+\begin{center}
+\begin{tabularx}{\textwidth}{ c | c | p{105mm} }
+    Property & Type & Description \\
+    \hline\hline
+    \texttt{patches} & List & List of patch names used to calculate pressure and viscous contributions - patch surface normals must point inside porous body \\
+    \hline
+    \texttt{rho} & Float & Density value to use in forces calculation \\
+    \hline
+    \texttt{p} & Name & Pressure field (volScalarField) name \\
+    \hline
+    \texttt{U} & Name & Velocity field (volVectorField) name \\
+    \hline
+    \texttt{K\_} & Name & Permeability field (volScalarField) name \\
+    \hline
+    \texttt{pRef} & Float & reference pressure to use in forces calculation \\
+    \hline
+    \texttt{porosity} & Bool & Include porous force contributions true/false (default is false) \\
+    \hline
+    \texttt{porousZone} & Name & Name of the cellZone used to calculate porous contributions \\
+\end{tabularx}
+\end{center}
+\caption{forcesConventional functionObject properties}
+\label{table:forcesConventional_dictionary}
+\end{table}\\
+Source code for the forcesConventional functionObject can be downloaded from:\\\href{https://github.com/c-bruce/forcesConventional}{https://github.com/c-bruce/forcesConventional}.
+\vspace{5mm}\\
+To verify the implementation of the forcesConventional functionObject a two-dimensional porous square cylinder case was set up and run using: a) pisoFoam solver using laminar turbulence model (see \href{https://www.openfoam.com/documentation/guides/latest/doc/guide-applications-solvers-incompressible-pisoFoam.html}{pisoFoam}) with OpenFOAM's built-in Darcy-Forchheimer porous media model (see \href{https://www.openfoam.com/documentation/guides/latest/api/classFoam_1_1porosityModels_1_1DarcyForchheimer.html}{DarcyForchheimer}) and built-in forces functionObject; and b) custom porousIcoFoam solver and custom forcesConventional functionObject. These approaches will herein be refered to as ``built-in'' and ``custom'' respectively. The aim of this verification case is to demonstrate that the forcesConventional function object has been correctly implemented. Note that in the built-in approach the porous media model only modifies the Navier Stokes equations by adding sink terms to the RHS of the governing equation (via fvOptions in OpenFOAM) and does not include the porosity terms that appear in equation \ref{eq:dbf_momentum} which modify the local acceleration, convective and viscous terms in the equation. Hence to match this set up in the custom approach porosity is set to unity everywhere. The porous square cylinder is centered on the origin and has edge length, $L = 1$ $m$. A fixed velocity inlet condition ($u_{\infty} = 1$ $ms^{-1}$) is applied $2L$ upstream of the origin, a fixed pressure outlet condition ($p^{*} = 0$ $Pakg^{-1}m^3$) is applied $6L$ downstream of the origin and, slip boundary conditions are applied at $\pm2L$ spanwise. Kinematic viscosity, $\nu$, is set to $0.033333$ $m^2s^{-1}$. This corresponds to a Reynolds number, $Re = 30$. Permeability, $K$, is set to $1\times10^{-4}$ $m^{2}$. The Darcy number, $Da$ is defined as $Da = K/L^{2}$ therefore, $Da = 1\times10^{-4}$. The form drag constant, $c_F$, is set to zero neglecting the Forchheimer term.
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{75mm}
+        \includegraphics[width=75mm]{"pressure_x.png"}
+        \caption{Pressure $C_D$ contribution}
+        \label{fig:pty075_Da1e-2}
+    \end{subfigure}
+    \begin{subfigure}[b]{75mm}
+        \includegraphics[width=75mm]{"viscous_x.png"}
+        \caption{Viscous $C_D$ contribution}
+        \label{fig:pty075_Da1e-4}
+    \end{subfigure}
+    \\
+    \begin{subfigure}[b]{75mm}
+        \includegraphics[width=75mm]{"porous_x.png"}
+        \caption{Porous (Darcy) $C_D$ contribution}
+        \label{fig:pty095_Da1e-2}
+    \end{subfigure}
+    \begin{subfigure}[b]{75mm}
+        \includegraphics[width=75mm]{"total_x.png"}
+        \caption{Total $C_D$}
+        \label{fig:pty095_Da1e-4}
+    \end{subfigure}
+    \caption{Contributions to total $C_D$ for the two-dimensional porous square cylinder verification case calculated using the built-in and custom approaches.}\label{fig:forcesConventional_verification1}
+\end{figure}
+\begin{table}[ht]
+\centering
+\begin{tabular}{ c | c | c | c }
+    $C_D$ Contribution & Built-in & Custom & Difference (\%) \\
+    \hline\hline
+    Pressure & 2.8021 & 2.7880 & -0.50\\
+    \hline
+    Viscous & 0.5495 & 0.5553 & 1.06\\
+    \hline
+    Porous (Darcy) & 3.5176 & 3.5158 & -0.05\\
+    \hline
+    Total & 6.8692 & 6.8591 & -0.15\\
+\end{tabular}
+\caption{forcesConventional verification results.}
+\label{table:forcesConventional_verification1}
+\end{table}\\
+Figure \ref{fig:forcesConventional_verification1} shows the development, over time, of individual force contributions and total force displayed in non-dimensional form as the drag coefficient, $C_D$, for the built-in and custom approaches described above. The solution becomes steady after $\sim10s$. Table \ref{table:forcesConventional_verification1} shows the steady state values for the built-in and custom approaches. Pressure force contributes $\sim 41\%$, viscous force $\sim 8\%$ and porous force $\sim 51\%$ to the total drag force. Results in figure \ref{fig:forcesConventional_verification1} and table \ref{table:forcesConventional_verification1} show that forces calculated using the built-in and custom approaches do not agree exactly. The largest percentage difference appears in the viscous contribution ($\sim 1\%$) while the pressure ($0.5\%$) and porous ($0.05\%$) contributions display less significant percentage differences. The overall percentage difference between the two approaches for the total value of $C_D$ is $0.15 \%$. The two approaches solve the govenring equations in distinct ways: in the custom approach the porous terms are included directly in the porousIcoFoam \texttt{UEqu} while the built-in approach solves the Navier Stokes equations and includes the porous terms at run time using fvOptions. The size of the difference in results is small considering the differences in approaches outlined above and gives confidence that the forcesConventional functionObject has been correctly implemented.
+
 \section{Vorticity-moment theorem (impulse theory) forces and moments calculation}
 An alternative method for calculating the forces and moments acting on a body is to use the vorticity-moment theorem, or impulse theory. This method has it's origins in the general formulas relating aerodynamic forces and moments to rates of change of vorticity moments originally presented by Wu \cite{Wu1981}. The aerodynamic force acting on a solid body immersed in a fluid region extending to infinity, $R_{f}$, with a reference frame fixed with the body, is given by:
 \begin{equation}
@@ -440,6 +545,7 @@ The aerodynamic moment acting on a solid body immersed in $R_{f}$, with a refere
     \label{eq:wu_moment}
 \end{equation}
 Equations \ref{eq:wu_force} and \ref{eq:wu_moment} are taken from Elements of Vorticity Aerodynamics \cite{Wu2018} which discusses in detail the vorticity-moment theorem and presents versions of \ref{eq:wu_force} and \ref{eq:wu_moment} where the body is moving and rotating relative to the fluid.
+\subsection{forcesImpulseTheory functionObject}
 \bibliography{library}
 \bibliographystyle{ieeetr}
 \end{document}
